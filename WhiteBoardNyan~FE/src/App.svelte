@@ -22,9 +22,10 @@
         <div class="user-name">UserTEMP</div>
         <!-- <div class="sign-out"></div> -->
       </div>
-      <div class="tool-bar">
+    </div>
 
-      </div>
+    <div class="tool-bar">
+
     </div>
 
   </div>
@@ -94,6 +95,8 @@
   color: black;
 }
 .tool-bar{
-  
+  height: 94%;
+  width: 64px;
+  background-color: #EDEDED;
 }
 </style>
