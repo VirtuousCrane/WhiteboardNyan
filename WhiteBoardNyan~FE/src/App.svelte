@@ -1,7 +1,7 @@
 <script>
-  // import svelteLogo from './assets/svelte.svg'
   // import Counter from './lib/Counter.svelte'
   import Icon from '@iconify/svelte';
+  let whiteboardlogo = "/image/whiteBoardIcon-2.png";
 </script>
 
 <main>
@@ -9,8 +9,7 @@
     <div class="header">
       <div class="icon-name">
         <div class="icon">
-          <!-- <img/> -->
-          Icon
+          <img src={whiteboardlogo} alt="whiteboardlogo"/>
         </div>
         <div class="app-title">Cooperative Whiteboard</div>
       </div>
@@ -20,23 +19,33 @@
           <!-- <img/> -->
         </div>
         <div class="user-name">UserTEMP</div>
-        <!-- <div class="sign-out"></div> -->
+        <div class="sign-out">Sign Out</div>
       </div>
     </div>
 
-    <div class="tool-bar">
-
+    <div class="center-page">
+      <div class="tool-bar"></div>
+      <div class="canvas"></div>
     </div>
-
   </div>
 </main>
 
 <style>
+img{
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .main-page{
   height: 100vh;
   width: 100vw;
   background-color: white;
 }
+
 .header{
   background-color: #D9D9D9;
   height: 6%;
@@ -45,6 +54,7 @@
   align-items: center;
   justify-content: space-evenly;
 }
+
 .icon-name{
   height: 100%;
   width: 33.333%;
@@ -53,11 +63,12 @@
 .icon{
   height: 40px;
   width: 40px;
-  background-color: rgb(76, 76, 76);
-  border-radius: 8px;
+  border-radius: 4px;
   margin: 4px;
-  margin-left: 12px;
+  margin-left: 14px;
+  /* border: solid 1px black; */
 }
+
 .app-title{
   color: black;
   display: flex;
@@ -76,6 +87,7 @@
   height: 100%;
   width: 33.333%;
 }
+
 .user{
   height: 100%;
   width: 33.333%;
@@ -94,9 +106,24 @@
   padding-right: 5%;
   color: black;
 }
-.tool-bar{
+.sign-out{
+  color: black;
+  padding-right: 10px;
+}
+
+.center-page{
   height: 94%;
-  width: 64px;
+  width: 100%;
+  display: flex;
+}
+.tool-bar{
+  height: 100%;
+  width: 4%;
   background-color: #EDEDED;
+}
+.canvas{
+  height: 100%;
+  width: 96%;
+  background-color: red;
 }
 </style>
