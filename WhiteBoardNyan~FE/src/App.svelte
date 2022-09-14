@@ -9,6 +9,9 @@
   let previousY = Infinity;
   let colorHue = 0;
 
+  let pencilIcon, eraserIcon;
+  let toolSelected = '0';
+
   onMount(() => {
     initialize();
 
@@ -29,22 +32,24 @@
   }
 
   function paint(e) {
-    const { clientX, clientY, offsetX, offsetY } = e;
-    ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
-    ctx.beginPath();
+    if(toolSelected == '1'){
+      const { clientX, clientY, offsetX, offsetY } = e;
+      ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
+      ctx.beginPath();
 
-    if (
-      Math.abs(previousX - clientX) < 100 &&
-      Math.abs(previousY - clientY) < 100
-    ) {
-      ctx.moveTo(previousX, previousY);
+      if (
+        Math.abs(previousX - clientX) < 100 &&
+        Math.abs(previousY - clientY) < 100
+      ) {
+        ctx.moveTo(previousX, previousY);
+      }
+
+      ctx.lineTo(offsetX, offsetY);
+      ctx.stroke();
+      previousX = offsetX;
+      previousY = offsetY;
+      colorHue++;
     }
-
-    ctx.lineTo(offsetX, offsetY);
-    ctx.stroke();
-    previousX = offsetX;
-    previousY = offsetY;
-    colorHue++;
   }
 
   function onMouseMove(event) {
@@ -59,6 +64,22 @@
   function onMouseUp() {
     canvas.removeEventListener("mousemove", onMouseMove);
     canvas.removeEventListener("mouseup", onMouseUp);
+  }
+
+  function selectedTool(){
+    pencilIcon.style.backgroundColor = "#ededed";
+    eraserIcon.style.backgroundColor = "#ededed";
+
+    switch(toolSelected){
+      case "1":{
+        pencilIcon.style.backgroundColor = "grey";
+        break;
+      }
+      case "2":{
+        eraserIcon.style.backgroundColor = "grey";
+        break;
+      }
+    }
   }
 </script>
 
@@ -83,10 +104,10 @@
 
     <div class="center-page">
       <div class="tool-bar">
-        <div class="tool-icon">
+        <div class="tool-icon" bind:this={pencilIcon} on:click={() => toolSelected = "1"} on:click={selectedTool} >
           <Icon icon="fluent-emoji-high-contrast:pencil" width="32" height="32"/>
         </div>
-        <div class="tool-icon">
+        <div class="tool-icon" bind:this={eraserIcon} on:click={() => toolSelected = "2"} on:click={selectedTool}>
           <Icon icon="icons8:eraser" width="44" height="44" />
         </div>
       </div>
@@ -202,6 +223,9 @@
     align-items: center;
     overflow: hidden;
     padding: 10px;
+  }
+  .tool-icon:hover{
+    background-color: lightgrey;
   }
 
   .canvas {
