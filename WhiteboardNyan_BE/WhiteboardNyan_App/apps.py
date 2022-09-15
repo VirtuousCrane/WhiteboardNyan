@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class WhiteboardnyanAppConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "WhiteboardNyan_App"
+    name = "WhiteboardNyan_BE.WhiteboardNyan_App"
