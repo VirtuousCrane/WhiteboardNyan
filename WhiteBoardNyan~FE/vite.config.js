@@ -8,7 +8,7 @@ export default defineConfig({
       sourcemap: true,
       format: 'iife',
       name: 'app',
-      file: 'bundle.js',
+      file: '../WhiteboardNyan_BE/static/frontend/bundle.js',
   },
   plugins: [
       svelte(),
