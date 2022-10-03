@@ -2,7 +2,9 @@
   import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
 
-  let whiteboardlogo = "/image/whiteBoardIcon-2.png";
+  let RESOURCE_ROOT = "/static/frontend/"
+
+  let whiteboardlogo = RESOURCE_ROOT + "image/WhiteBoardIcon-2.png";
 
   let canvas, ctx;
   let previousX = Infinity;

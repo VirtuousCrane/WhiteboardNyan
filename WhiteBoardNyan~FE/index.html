@@ -1,4 +1,5 @@
 {% load static %}
+{% load vite %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,9 +8,10 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'frontend/vite.svg' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + Svelte</title>
+    {% vite_styles 'main.js' 'other-entry.js' %}
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" defer src="{% static 'frontend_src/main.js' %}"></script>
+    {% vite_scripts 'main.js' %}
   </body>
 </html>
