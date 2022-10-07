@@ -7,10 +7,10 @@
   let canvas, ctx;
   let previousX = Infinity;
   let previousY = Infinity;
-  let colorHue = 0;
+  let colorHue = "#000000";
 
-  let pencilIcon, eraserIcon;
-  let toolSelected = '0';
+  let pencilIcon, eraserIcon, selectColorIcon;
+  let toolSelected = "0";
 
   onMount(() => {
     initialize();
@@ -32,9 +32,10 @@
   }
 
   function paint(e) {
-    if(toolSelected == '1'){
+    if (toolSelected == "1") {
       const { clientX, clientY, offsetX, offsetY } = e;
-      ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
+      // ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
+      ctx.strokeStyle = colorHue;
       ctx.beginPath();
 
       if (
@@ -48,8 +49,33 @@
       ctx.stroke();
       previousX = offsetX;
       previousY = offsetY;
-      colorHue++;
+      // colorHue++;
+      colorHue = "#000000";
     }
+    else if(toolSelected == "2"){
+      const { clientX, clientY, offsetX, offsetY } = e;
+      // ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
+      ctx.strokeStyle = colorHue;
+      ctx.beginPath();
+
+      if (
+        Math.abs(previousX - clientX) < 100 &&
+        Math.abs(previousY - clientY) < 100
+      ) {
+        ctx.moveTo(previousX, previousY);
+      }
+
+      ctx.lineTo(offsetX, offsetY);
+      ctx.stroke();
+      previousX = offsetX;
+      previousY = offsetY;
+      // colorHue++;
+      colorHue = "#ffffff";
+    }
+  }
+
+  function colorPalette() {
+    
   }
 
   function onMouseMove(event) {
@@ -64,19 +90,26 @@
   function onMouseUp() {
     canvas.removeEventListener("mousemove", onMouseMove);
     canvas.removeEventListener("mouseup", onMouseUp);
+    previousX = Infinity;
+    previousY = Infinity;
   }
 
-  function selectedTool(){
+  function selectedTool() {
     pencilIcon.style.backgroundColor = "#ededed";
     eraserIcon.style.backgroundColor = "#ededed";
+    selectColorIcon.style.backgroundColor = "#ededed";
 
-    switch(toolSelected){
-      case "1":{
+    switch (toolSelected) {
+      case "1": {
         pencilIcon.style.backgroundColor = "grey";
         break;
       }
-      case "2":{
+      case "2": {
         eraserIcon.style.backgroundColor = "grey";
+        break;
+      }
+      case "3": {
+        selectColorIcon.style.backgroundColor = "grey";
         break;
       }
     }
@@ -104,15 +137,85 @@
 
     <div class="center-page">
       <div class="tool-bar">
-        <div class="tool-icon" bind:this={pencilIcon} on:click={() => toolSelected = "1"} on:click={selectedTool} >
-          <Icon icon="fluent-emoji-high-contrast:pencil" width="32" height="32"/>
+        <div
+          class="tool-icon"
+          bind:this={pencilIcon}
+          on:click={() => (toolSelected = "1")}
+          on:click={selectedTool}
+        >
+          <Icon
+            icon="fluent-emoji-high-contrast:pencil"
+            width="32"
+            height="32"
+          />
         </div>
-        <div class="tool-icon" bind:this={eraserIcon} on:click={() => toolSelected = "2"} on:click={selectedTool}>
+        <div
+          class="tool-icon"
+          bind:this={eraserIcon}
+          on:click={() => (toolSelected = "2")}
+          on:click={selectedTool}
+        >
           <Icon icon="icons8:eraser" width="44" height="44" />
+        </div>
+        <div
+          class="tool-icon"
+          bind:this={selectColorIcon}
+          on:click={() => (toolSelected = "3")}
+          on:click={selectedTool}
+        >
+          <div class="selected-color-tool" />
         </div>
       </div>
       <div class="canvas">
-        <canvas id="my-canvas" bind:this={canvas} on:mousedown={onMouseDown} />
+        <canvas
+          id="my-canvas"
+          bind:this={canvas}
+          on:mousedown={onMouseDown}
+          on:mouseup={onMouseUp}
+        />
+        <canvas
+          id="canvas"
+          style="background-color:#EEE;"
+          width="500px"
+          height="200px"
+        />
+        <script type="text/javascript">
+          var canvas = document.getElementById("canvas");
+          var ctx = canvas.getContext("2d");
+          canvas.addEventListener(
+            "mousedown",
+            function (e) {
+              this.down = true;
+              this.X = e.pageX;
+              this.Y = e.pageY;
+            },
+            0
+          );
+          canvas.addEventListener(
+            "mouseup",
+            function () {
+              this.down = false;
+            },
+            0
+          );
+          canvas.addEventListener(
+            "mousemove",
+            function (e) {
+              if (this.down) {
+                with (ctx) {
+                  beginPath();
+                  moveTo(this.X, this.Y);
+                  lineTo(e.pageX, e.pageY);
+                  ctx.lineWidth = 1;
+                  stroke();
+                }
+                this.X = e.pageX;
+                this.Y = e.pageY;
+              }
+            },
+            0
+          );
+        </script>
       </div>
     </div>
   </div>
@@ -154,7 +257,14 @@
     border-radius: 4px;
     margin: 4px;
     margin-left: 14px;
-    /* border: solid 1px black; */
+  }
+  .selected-color-tool {
+    height: 64%;
+    width: 64%;
+    border: solid 3px black;
+    border-radius: 5px;
+
+    background-color: black;
   }
 
   .app-title {
@@ -215,7 +325,7 @@
 
     color: black;
   }
-  .tool-icon{
+  .tool-icon {
     height: 5%;
     width: 60%;
     display: flex;
@@ -224,7 +334,7 @@
     overflow: hidden;
     padding: 10px;
   }
-  .tool-icon:hover{
+  .tool-icon:hover {
     background-color: lightgrey;
   }
 
@@ -232,11 +342,9 @@
     height: 100%;
     width: 96%;
     overflow: hidden;
-    /* background-color: red; */
   }
   #my-canvas {
     width: 100%;
     height: 100%;
-    /* background-color: red; */
   }
 </style>
