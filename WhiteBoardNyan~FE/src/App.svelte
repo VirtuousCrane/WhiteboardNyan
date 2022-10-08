@@ -7,6 +7,7 @@
   let canvas, ctx;
   let previousX = Infinity;
   let previousY = Infinity;
+  let colorPaletteValue;
   let colorHue = "#000000";
 
   let pencilIcon, eraserIcon, selectColorIcon;
@@ -29,12 +30,14 @@
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.lineWidth = 10;
+
+    colorPaletteValue = document.querySelector("#colorpicker");
+    colorPaletteValue.addEventListener("change", updateColor, true);
   }
 
   function paint(e) {
     if (toolSelected == "1") {
       const { clientX, clientY, offsetX, offsetY } = e;
-      // ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
       ctx.strokeStyle = colorHue;
       ctx.beginPath();
 
@@ -49,12 +52,9 @@
       ctx.stroke();
       previousX = offsetX;
       previousY = offsetY;
-      // colorHue++;
-      colorHue = "#000000";
     }
     else if(toolSelected == "2"){
       const { clientX, clientY, offsetX, offsetY } = e;
-      // ctx.strokeStyle = `hsl(${colorHue}, 100%, 60%)`;
       ctx.strokeStyle = colorHue;
       ctx.beginPath();
 
@@ -69,13 +69,15 @@
       ctx.stroke();
       previousX = offsetX;
       previousY = offsetY;
-      // colorHue++;
       colorHue = "#ffffff";
     }
   }
-
-  function colorPalette() {
-    
+  
+  function updateColor(event) {
+    colorHue = event.target.value;
+    console.log("update color selected");
+    console.log(event.target.value);
+    console.log(colorHue)
   }
 
   function onMouseMove(event) {
@@ -163,7 +165,7 @@
           on:click={() => (toolSelected = "3")}
           on:click={selectedTool}
         >
-          <div class="selected-color-tool" />
+        <input type="color" id="colorpicker">
         </div>
       </div>
       <div class="canvas">
@@ -257,14 +259,6 @@
     border-radius: 4px;
     margin: 4px;
     margin-left: 14px;
-  }
-  .selected-color-tool {
-    height: 64%;
-    width: 64%;
-    border: solid 3px black;
-    border-radius: 5px;
-
-    background-color: black;
   }
 
   .app-title {
