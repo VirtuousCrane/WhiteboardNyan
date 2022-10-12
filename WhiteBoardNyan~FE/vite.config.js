@@ -4,12 +4,12 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 const { resolve } = require('path');
 
 // https://vitejs.dev/config/
-//export default defineConfig({
+// export default defineConfig({
 //  input: 'src/main.js',
 //  plugins: [
 //      svelte(),
 //  ],
-//})
+// })
 export default {
     build: {
         manifest: true,
