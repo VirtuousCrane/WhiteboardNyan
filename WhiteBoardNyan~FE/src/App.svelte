@@ -2,7 +2,7 @@
   import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
 
-  let RESOURCE_ROOT = "/static/frontend/"
+  let RESOURCE_ROOT = "/static/frontend/";
 
   let whiteboardlogo = RESOURCE_ROOT + "image/WhiteBoardIcon-2.png";
 
@@ -14,6 +14,19 @@
 
   let pencilIcon, eraserIcon, selectColorIcon;
   let toolSelected = "0";
+
+  window.addEventListener("resize", () => {
+    const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const { x, width, y, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+    ctx.putImageData(temp, 0, 0);
+  });
 
   onMount(() => {
     initialize();
@@ -54,10 +67,9 @@
       ctx.stroke();
       previousX = offsetX;
       previousY = offsetY;
-    }
-    else if(toolSelected == "2"){
+    } else if (toolSelected == "2") {
       const { clientX, clientY, offsetX, offsetY } = e;
-      ctx.strokeStyle = colorHue;
+      ctx.strokeStyle = "#ffffff";
       ctx.beginPath();
 
       if (
@@ -71,15 +83,14 @@
       ctx.stroke();
       previousX = offsetX;
       previousY = offsetY;
-      colorHue = "#ffffff";
     }
   }
-  
+
   function updateColor(event) {
     colorHue = event.target.value;
     console.log("update color selected");
     console.log(event.target.value);
-    console.log(colorHue)
+    console.log(colorHue);
   }
 
   function onMouseMove(event) {
@@ -167,7 +178,7 @@
           on:click={() => (toolSelected = "3")}
           on:click={selectedTool}
         >
-        <input type="color" id="colorpicker">
+          <input type="color" id="colorpicker" />
         </div>
       </div>
       <div class="canvas">
