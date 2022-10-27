@@ -28,6 +28,18 @@
     ctx.putImageData(temp, 0, 0);
   });
 
+  // WebSocket config
+  let hostname = window.location.hostname;
+  if (!hostname) {
+    hostname = "localhost";
+  }
+
+  // TODO: Replace the URI when a WebSocket is implemented
+  let connection = new WebSocket('ws://' + hostname + ":8080/socket");
+
+  connection.onopen = webSocketInit;
+  connection.onmessage = messageHandler;
+
   onMount(() => {
     initialize();
 
@@ -35,6 +47,10 @@
       // unMount
     };
   });
+
+  function send(message) {
+    connection.send(JSON.stringify(message));
+  }
 
   function initialize() {
     const { x, width, y, height } = canvas.getBoundingClientRect();
@@ -51,16 +67,29 @@
   }
 
   function paint(e) {
+    let clientX_msg;
+    let clientY_msg;
+    let offsetX_msg;
+    let offsetY_msg;
+    let colorHue_msg = colorHue;
+    
     if (toolSelected == "1") {
       const { clientX, clientY, offsetX, offsetY } = e;
       ctx.strokeStyle = colorHue;
       ctx.beginPath();
+
+      clientX_msg = clientX;
+      clientY_msg = clientY;
+      offsetX_msg = offsetX;
+      offsetY_msg = offsetY;
 
       if (
         Math.abs(previousX - clientX) < 100 &&
         Math.abs(previousY - clientY) < 100
       ) {
         ctx.moveTo(previousX, previousY);
+        clientX_msg = previousX;
+        clientY_msg = previousY;
       }
 
       ctx.lineTo(offsetX, offsetY);
@@ -72,11 +101,18 @@
       ctx.strokeStyle = "#ffffff";
       ctx.beginPath();
 
+      clientX_msg = clientX;
+      clientY_msg = clientY;
+      offsetX_msg = offsetX;
+      offsetY_msg = offsetY;
+
       if (
         Math.abs(previousX - clientX) < 100 &&
         Math.abs(previousY - clientY) < 100
       ) {
         ctx.moveTo(previousX, previousY);
+        clientX_msg = previousX;
+        clientY_msg = previousY;
       }
 
       ctx.lineTo(offsetX, offsetY);
@@ -84,6 +120,18 @@
       previousX = offsetX;
       previousY = offsetY;
     }
+
+    send({
+      event: "draw",
+      data: {
+        action: toolSelected,
+        clientX: clientX_msg,
+        clientY: clientY_msg,
+        offsetX: offsetX_msg,
+        offsetY: offsetY_msg,
+        colorHue: colorHue_msg,
+      }
+    });
   }
 
   function updateColor(event) {
@@ -127,6 +175,53 @@
         selectColorIcon.style.backgroundColor = "grey";
         break;
       }
+    }
+  }
+
+  // Web Socket functions
+  function webSocketInit() {
+    console.log("Connected to WebSocket");
+  }
+
+  function messageHandler(message) {
+    console.log("Received message");
+    let content = JSON.parse(message.data);
+    let data = content.data;
+
+    switch(content.event) {
+      case "message":
+        console.log(data);
+        break;
+      case "draw":
+        drawFromMessage(data);
+        break;
+      case "alert":
+        alert(data);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function drawFromMessage(messageData) {
+    if (messageData.action == "1") {
+      ctx.strokeStyle = messageData.colorHue;
+      ctx.beginPath();
+
+      ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      ctx.stroke();
+    }
+    else if(messageData.action == "2"){
+      ctx.strokeStyle = messageData.colorHue;
+      ctx.beginPath();
+
+      ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      ctx.stroke();
+      colorHue = "#ffffff";
     }
   }
 </script>
