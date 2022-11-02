@@ -29,13 +29,14 @@
   });
 
   // WebSocket config
-  let hostname = window.location.hostname;
-  if (!hostname) {
-    hostname = "localhost";
-  }
+  let userID = generate_user_id();
+  
+  let hostname = window.location.host;
+  let path = window.location.pathname;
+  let roomCode = path.split("/");
+  roomCode = roomCode[roomCode.length - 1];
 
-  // TODO: Replace the URI when a WebSocket is implemented
-  let connection = new WebSocket('ws://' + hostname + ":8080/socket");
+  let connection = new WebSocket('ws://' + hostname + "/ws/whiteboard/" + roomCode + "/");
 
   connection.onopen = webSocketInit;
   connection.onmessage = messageHandler;
@@ -47,6 +48,17 @@
       // unMount
     };
   });
+
+  function generate_user_id() {
+    const hexChar = "0123456789abcdef";
+    let result = "";
+
+    for (let i = 0; i < 32; i++) {
+        result += hexChar.charAt(Math.floor(Math.random() * hexChar.length));
+    }
+
+    return result;
+  }
 
   function send(message) {
     connection.send(JSON.stringify(message));
@@ -122,7 +134,13 @@
     }
 
     send({
-      event: "draw",
+        event: "MESSAGE",
+        data: "Drawing",
+        userID: userID,
+    });
+
+    send({
+      event: "DRAW",
       data: {
         action: toolSelected,
         clientX: clientX_msg,
@@ -130,6 +148,7 @@
         offsetX: offsetX_msg,
         offsetY: offsetY_msg,
         colorHue: colorHue_msg,
+        userID: userID,
       }
     });
   }
@@ -186,16 +205,24 @@
   function messageHandler(message) {
     console.log("Received message");
     let content = JSON.parse(message.data);
-    let data = content.data;
+    let payload = content.payload;
+    let data = payload.data;
+    let senderID = data.userID;
+    console.log(payload);
 
-    switch(content.event) {
-      case "message":
+    if (senderID == userID) {
+        return;
+    }
+
+    switch(payload.event) {
+      case "MESSAGE":
         console.log(data);
         break;
-      case "draw":
+      case "DRAW":
+        console.log(data);
         drawFromMessage(data);
         break;
-      case "alert":
+      case "ALERT":
         alert(data);
         break;
       default:
