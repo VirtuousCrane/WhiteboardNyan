@@ -41,6 +41,13 @@
   connection.onopen = webSocketInit;
   connection.onmessage = messageHandler;
 
+  if (connection.readyState == WebSocket.OPEN) {
+    connection.onopen();
+  }
+
+  // Handling Key Press
+  document.onkeyup = keyPressHandler;
+
   onMount(() => {
     initialize();
 
@@ -182,6 +189,9 @@
     selectColorIcon.style.backgroundColor = "#ededed";
 
     switch (toolSelected) {
+      case "0": {
+        break;
+      }
       case "1": {
         pencilIcon.style.backgroundColor = "grey";
         break;
@@ -208,6 +218,8 @@
     let payload = content.payload;
     let data = payload.data;
     let senderID = data.userID;
+
+    console.log("MY ID = " + userID);
     console.log(payload);
 
     if (senderID == userID) {
@@ -227,6 +239,10 @@
         break;
       default:
         break;
+    }
+
+    if (connection.readyState == WebSocket.OPEN) {
+        connection.onopen();
     }
   }
 
@@ -249,6 +265,15 @@
       ctx.lineTo(messageData.offsetX, messageData.offsetY);
       ctx.stroke();
       colorHue = "#ffffff";
+    }
+  }
+
+  function keyPressHandler(e) {
+    let key = e.key;
+
+    if (key == "Escape") {
+        toolSelected = "0";
+        selectedTool();
     }
   }
 </script>
