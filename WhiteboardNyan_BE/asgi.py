@@ -21,10 +21,13 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WhiteboardNyan_BE.settings")
 django.setup()
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
+    "websocket": URLRouter(
             WhiteboardNyan_BE.WhiteboardNyan_App.routing.websocket_urlpatterns
-        )
     ),
+#    "websocket": AuthMiddlewareStack(
+#        URLRouter(
+#            WhiteboardNyan_BE.WhiteboardNyan_App.routing.websocket_urlpatterns
+#        )
+#    ),
 })
 #application = get_asgi_application()
