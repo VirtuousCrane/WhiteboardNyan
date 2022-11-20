@@ -39,6 +39,7 @@
   let connection = new WebSocket('ws://' + hostname + "/ws/whiteboard/" + roomCode + "/");
 
   connection.onopen = webSocketInit;
+  connection.onclose = webSocketClose;
   connection.onmessage = messageHandler;
 
   if (connection.readyState == WebSocket.OPEN) {
@@ -212,8 +213,13 @@
     console.log("Connected to WebSocket");
   }
 
+  function webSocketClose() {
+    console.log("Closed WebSocket Connection");
+  }
+
   function messageHandler(message) {
     console.log("Received message");
+    console.log(message)
     let content = JSON.parse(message.data);
     let payload = content.payload;
     let data = payload.data;

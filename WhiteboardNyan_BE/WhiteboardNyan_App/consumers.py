@@ -29,21 +29,21 @@ class WhiteboardConsumer(AsyncJsonWebsocketConsumer):
         event = response.get("event", None)
         data = response.get("data", None)
 
-        if event == "MESSAGE":
+        if event == "JOIN":
+            pass
+        else:
             await self.channel_layer.group_send(self.room_group_name, {
                 'type': 'send_message',
                 'data': data,
-                'event': 'MESSAGE'
-            })
-        elif event == "DRAW":
-            await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'send_message',
-                'data': data,
-                'event': 'DRAW'
+                'event': event
             })
 
     async def send_message(self, res):
         print("RES: " + json.dumps(res))
         await self.send(text_data=json.dumps({
+            "type": "websocket.send",
             "payload": res,
         }))
+#        await self.send(text_data=json.dumps({
+#            "payload": res,
+#        }))
