@@ -28,6 +28,27 @@
     ctx.putImageData(temp, 0, 0);
   });
 
+  // WebSocket config
+  let userID = generate_user_id();
+  
+  let hostname = window.location.host;
+  let path = window.location.pathname;
+  let roomCode = path.split("/");
+  roomCode = roomCode[roomCode.length - 1];
+
+  let connection = new WebSocket('ws://' + hostname + "/ws/whiteboard/" + roomCode + "/");
+
+  connection.onopen = webSocketInit;
+  connection.onclose = webSocketClose;
+  connection.onmessage = messageHandler;
+
+  if (connection.readyState == WebSocket.OPEN) {
+    connection.onopen();
+  }
+
+  // Handling Key Press
+  document.onkeyup = keyPressHandler;
+
   onMount(() => {
     initialize();
 
@@ -35,6 +56,21 @@
       // unMount
     };
   });
+
+  function generate_user_id() {
+    const hexChar = "0123456789abcdef";
+    let result = "";
+
+    for (let i = 0; i < 32; i++) {
+        result += hexChar.charAt(Math.floor(Math.random() * hexChar.length));
+    }
+
+    return result;
+  }
+
+  function send(message) {
+    connection.send(JSON.stringify(message));
+  }
 
   function initialize() {
     const { x, width, y, height } = canvas.getBoundingClientRect();
@@ -51,16 +87,29 @@
   }
 
   function paint(e) {
+    let clientX_msg;
+    let clientY_msg;
+    let offsetX_msg;
+    let offsetY_msg;
+    let colorHue_msg = colorHue;
+    
     if (toolSelected == "1") {
       const { clientX, clientY, offsetX, offsetY } = e;
       ctx.strokeStyle = colorHue;
       ctx.beginPath();
+
+      clientX_msg = clientX;
+      clientY_msg = clientY;
+      offsetX_msg = offsetX;
+      offsetY_msg = offsetY;
 
       if (
         Math.abs(previousX - clientX) < 100 &&
         Math.abs(previousY - clientY) < 100
       ) {
         ctx.moveTo(previousX, previousY);
+        clientX_msg = previousX;
+        clientY_msg = previousY;
       }
 
       ctx.lineTo(offsetX, offsetY);
@@ -72,11 +121,18 @@
       ctx.strokeStyle = "#ffffff";
       ctx.beginPath();
 
+      clientX_msg = clientX;
+      clientY_msg = clientY;
+      offsetX_msg = offsetX;
+      offsetY_msg = offsetY;
+
       if (
         Math.abs(previousX - clientX) < 100 &&
         Math.abs(previousY - clientY) < 100
       ) {
         ctx.moveTo(previousX, previousY);
+        clientX_msg = previousX;
+        clientY_msg = previousY;
       }
 
       ctx.lineTo(offsetX, offsetY);
@@ -84,6 +140,25 @@
       previousX = offsetX;
       previousY = offsetY;
     }
+
+    send({
+        event: "MESSAGE",
+        data: "Drawing",
+        userID: userID,
+    });
+
+    send({
+      event: "DRAW",
+      data: {
+        action: toolSelected,
+        clientX: clientX_msg,
+        clientY: clientY_msg,
+        offsetX: offsetX_msg,
+        offsetY: offsetY_msg,
+        colorHue: colorHue_msg,
+        userID: userID,
+      }
+    });
   }
 
   function updateColor(event) {
@@ -115,6 +190,9 @@
     selectColorIcon.style.backgroundColor = "#ededed";
 
     switch (toolSelected) {
+      case "0": {
+        break;
+      }
       case "1": {
         pencilIcon.style.backgroundColor = "grey";
         break;
@@ -127,6 +205,81 @@
         selectColorIcon.style.backgroundColor = "grey";
         break;
       }
+    }
+  }
+
+  // Web Socket functions
+  function webSocketInit() {
+    console.log("Connected to WebSocket");
+  }
+
+  function webSocketClose() {
+    console.log("Closed WebSocket Connection");
+  }
+
+  function messageHandler(message) {
+    console.log("Received message");
+    console.log(message)
+    let content = JSON.parse(message.data);
+    let payload = content.payload;
+    let data = payload.data;
+    let senderID = data.userID;
+
+    console.log("MY ID = " + userID);
+    console.log(payload);
+
+    if (senderID == userID) {
+        return;
+    }
+
+    switch(payload.event) {
+      case "MESSAGE":
+        console.log(data);
+        break;
+      case "DRAW":
+        console.log(data);
+        drawFromMessage(data);
+        break;
+      case "ALERT":
+        alert(data);
+        break;
+      default:
+        break;
+    }
+
+    if (connection.readyState == WebSocket.OPEN) {
+        connection.onopen();
+    }
+  }
+
+  function drawFromMessage(messageData) {
+    if (messageData.action == "1") {
+      ctx.strokeStyle = messageData.colorHue;
+      ctx.beginPath();
+
+      ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      ctx.stroke();
+    }
+    else if(messageData.action == "2"){
+      ctx.strokeStyle = messageData.colorHue;
+      ctx.beginPath();
+
+      ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      ctx.stroke();
+      colorHue = "#ffffff";
+    }
+  }
+
+  function keyPressHandler(e) {
+    let key = e.key;
+
+    if (key == "Escape") {
+        toolSelected = "0";
+        selectedTool();
     }
   }
 </script>
