@@ -1,1 +1,1 @@
-../../../WhiteBoardNyan~FE/static/theme/main.285f2acc.js
+../../../WhiteBoardNyan~FE/static/theme/main.js
