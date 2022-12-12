@@ -15,6 +15,7 @@
   let pencilIcon, eraserIcon, selectColorIcon, nextIcon, previousIcon;
   let toolSelected = "0";
   let currentPage = 1;
+  let no_pages = 1;
 
   window.addEventListener("resize", () => {
     const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -74,6 +75,7 @@
   }
 
   function initialize() {
+    canvas = document.querySelector("#cv-1");
     const { x, width, y, height } = canvas.getBoundingClientRect();
     canvas.width = width;
     canvas.height = height;
@@ -209,11 +211,27 @@
         break;
       }
       case "4": {
-        nextIcon.style.backgroundColor = "grey";
+        // nextIcon.style.backgroundColor = "grey";
+        currentPage++;
+        if (currentPage <= no_pages) {
+          focus_canvas();
+          return;
+        }
+  
+        no_pages++;
+        let new_page = document.createElement("canvas");
+        let canvas_div = document.querySelector("#canvas-div");
+
+        new_page.setAttribute("id", "cv-" + currentPage);
+        new_page.classList.add("canvas-board");
+
+        canvas_div.append(new_page);
+        focus_canvas();
+
         break;
       }
       case "5": {
-        previousIcon.style.backgroundColor = "grey";
+        // previousIcon.style.backgroundColor = "grey";
         break;
       }
     }
@@ -293,6 +311,22 @@
         selectedTool();
     }
   }
+
+  function focus_canvas() {
+    if (currentPage > no_pages) {
+      currentPage = no_pages;
+    }
+
+    let all_canvas = document.querySelectorAll(".canvas-board");
+    let f_canvas = document.querySelector("#cv-" + currentPage);
+
+    for (let i = 0; i < all_canvas.length; i++) {
+        all_canvas[i].style.visibility = "hidden";
+    }
+
+    f_canvas.style.visibility = "visible";
+    canvas = f_canvas;
+  }
 </script>
 
 <main>
@@ -365,10 +399,10 @@
             <Icon icon="fluent:previous-48-filled" width="44" height="44"></Icon>
         </div>
       </div>
-      <div class="canvas">
+      <div id="canvas-div" class="canvas">
         <canvas
-          id="my-canvas"
-          bind:this={canvas}
+          id="cv-1"
+          class="canvas-board"
           on:mousedown={onMouseDown}
           on:mouseup={onMouseUp}
         />
@@ -496,19 +530,12 @@
   }
 
   .canvas {
-    opacity: 1;
-    visibility: visible;
     height: 100%;
     width: 96%;
     overflow: hidden;
   }
 
-  .canvas.invisible {
-    opacity: 0;
-    visibility: hidden;
-  }
-  
-  #my-canvas {
+  .canvas-board {
     width: 100%;
     height: 100%;
   }
