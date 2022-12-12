@@ -14,6 +14,7 @@
 
   let pencilIcon, eraserIcon, selectColorIcon, nextIcon, previousIcon;
   let toolSelected = "0";
+  let currentPage = 1;
 
   window.addEventListener("resize", () => {
     const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -352,7 +353,7 @@
         </div>
         <div class="tool-icon">
           <form id="page-no-form" action="">
-            <input type="text" id="currentPage">
+            <input type="number" id="currentPage" bind:value={currentPage}>
           </form>
         </div>
         <div
@@ -371,49 +372,6 @@
           on:mousedown={onMouseDown}
           on:mouseup={onMouseUp}
         />
-        <canvas
-          id="canvas"
-          style="background-color:#EEE;"
-          width="500px"
-          height="200px"
-        />
-        <script type="text/javascript">
-          var canvas = document.getElementById("canvas");
-          var ctx = canvas.getContext("2d");
-          canvas.addEventListener(
-            "mousedown",
-            function (e) {
-              this.down = true;
-              this.X = e.pageX;
-              this.Y = e.pageY;
-            },
-            0
-          );
-          canvas.addEventListener(
-            "mouseup",
-            function () {
-              this.down = false;
-            },
-            0
-          );
-          canvas.addEventListener(
-            "mousemove",
-            function (e) {
-              if (this.down) {
-                with (ctx) {
-                  beginPath();
-                  moveTo(this.X, this.Y);
-                  lineTo(e.pageX, e.pageY);
-                  ctx.lineWidth = 1;
-                  stroke();
-                }
-                this.X = e.pageX;
-                this.Y = e.pageY;
-              }
-            },
-            0
-          );
-        </script>
       </div>
     </div>
   </div>
@@ -538,10 +496,18 @@
   }
 
   .canvas {
+    opacity: 1;
+    visibility: visible;
     height: 100%;
     width: 96%;
     overflow: hidden;
   }
+
+  .canvas.invisible {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
   #my-canvas {
     width: 100%;
     height: 100%;
