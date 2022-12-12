@@ -12,7 +12,7 @@
   let colorPaletteValue;
   let colorHue = "#000000";
 
-  let pencilIcon, eraserIcon, selectColorIcon;
+  let pencilIcon, eraserIcon, selectColorIcon, nextIcon, previousIcon;
   let toolSelected = "0";
 
   window.addEventListener("resize", () => {
@@ -188,6 +188,8 @@
     pencilIcon.style.backgroundColor = "#ededed";
     eraserIcon.style.backgroundColor = "#ededed";
     selectColorIcon.style.backgroundColor = "#ededed";
+    nextIcon.style.backgroundColor = "#ededed";
+    previousIcon.style.backgroundColor = "#ededed";
 
     switch (toolSelected) {
       case "0": {
@@ -203,6 +205,14 @@
       }
       case "3": {
         selectColorIcon.style.backgroundColor = "grey";
+        break;
+      }
+      case "4": {
+        nextIcon.style.backgroundColor = "grey";
+        break;
+      }
+      case "5": {
+        previousIcon.style.backgroundColor = "grey";
         break;
       }
     }
@@ -332,6 +342,26 @@
           on:click={selectedTool}
         >
           <input type="color" id="colorpicker" />
+        </div>
+        <div class="tool-icon"
+          bind:this={nextIcon}
+          on:click={()=> (toolSelected= "4")}
+          on:click={selectedTool}
+        >
+          <Icon icon="fluent:next-20-filled" width="44" height="44"></Icon>
+        </div>
+        <div class="tool-icon">
+          <form id="page-no-form" action="">
+            <input type="text" id="currentPage">
+          </form>
+        </div>
+        <div
+          class="tool-icon"
+          bind:this={previousIcon}
+          on:click={() => (toolSelected = "5")}
+          on:click={selectedTool}
+          >
+            <Icon icon="fluent:previous-48-filled" width="44" height="44"></Icon>
         </div>
       </div>
       <div class="canvas">
@@ -496,6 +526,15 @@
   }
   .tool-icon:hover {
     background-color: lightgrey;
+  }
+
+  #currentPage{
+    background-color: #ededed;
+    height: 80%;
+    width: 80%;
+    color: black;
+    border: solid 1px black;
+    text-align: center;
   }
 
   .canvas {
