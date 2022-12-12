@@ -212,6 +212,7 @@
       }
       case "4": {
         // nextIcon.style.backgroundColor = "grey";
+
         currentPage++;
         if (currentPage <= no_pages) {
           focus_canvas();
@@ -232,6 +233,12 @@
       }
       case "5": {
         // previousIcon.style.backgroundColor = "grey";
+
+        currentPage--;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        focus_canvas();
         break;
       }
     }
