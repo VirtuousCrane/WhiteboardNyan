@@ -25,7 +25,6 @@ class WhiteboardConsumer(JsonWebsocketConsumer):
         )
 
     def receive(self, text_data):
-        print(text_data)
         response = json.loads(text_data)
         event = response.get("event", None)
         data = response.get("data", None)
@@ -37,11 +36,7 @@ class WhiteboardConsumer(JsonWebsocketConsumer):
         })
 
     def send_message(self, res):
-        print("RES: " + json.dumps(res))
         self.send(text_data=json.dumps({
             "type": "websocket.send",
             "payload": res,
         }))
-#        await self.send(text_data=json.dumps({
-#            "payload": res,
-#        }))

@@ -119,7 +119,6 @@
 
   function initialize_canvas() {
     console.log("Initializing Canvas...");
-    console.log(canvas);
     const { x, width, y, height } = canvas.getBoundingClientRect();
     canvas.width = width;
     canvas.height = height;
@@ -214,9 +213,6 @@
 
   function updateColor(event) {
     colorHue = event.target.value;
-    console.log("update color selected");
-    console.log(event.target.value);
-    console.log(colorHue);
   }
 
   function onMouseMove(event) {
@@ -225,8 +221,6 @@
 
   function onMouseDown(event) {
     let current_canvas = document.querySelector("#" + event.target.id);
-    console.log("This is the current canvas: ");
-    console.log(current_canvas);
 
     current_canvas.addEventListener("mousemove", onMouseMove);
     current_canvas.addEventListener("mouseup", onMouseUp);
@@ -234,8 +228,6 @@
 
   function onMouseUp(event) {
     let current_canvas = document.querySelector("#" + event.target.id);
-    console.log("This is the current canvas: ");
-    console.log(current_canvas);
 
     current_canvas.removeEventListener("mousemove", onMouseMove);
     current_canvas.removeEventListener("mouseup", onMouseUp);
@@ -327,15 +319,10 @@
   }
 
   function messageHandler(message) {
-    console.log("Received message");
-    console.log(message)
     let content = JSON.parse(message.data);
     let payload = content.payload;
     let data = payload.data;
     let senderID = data.userID;
-
-    console.log("MY ID = " + userID);
-    console.log(payload);
 
     if (senderID == userID) {
         return;
@@ -346,14 +333,12 @@
         console.log(data);
         break;
       case "DRAW":
-        console.log(data);
         drawFromMessage(data);
         break;
       case "ALERT":
         alert(data);
         break;
       case "NEW_PAGE":
-        console.log(data);
         create_page(false);
         break;
       default:
