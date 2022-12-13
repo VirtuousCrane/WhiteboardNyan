@@ -89,6 +89,19 @@
     colorPaletteValue.addEventListener("change", updateColor, true);
   }
 
+  function initialize_canvas() {
+    console.log("Initializing Canvas...");
+    console.log(canvas);
+    const { x, width, y, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+  }
+
   function paint(e) {
     let clientX_msg;
     let clientY_msg;
@@ -226,6 +239,9 @@
         new_page.setAttribute("id", "cv-" + currentPage);
         new_page.classList.add("canvas-board");
 
+        new_page.addEventListener("mousedown", onMouseDown);
+        new_page.addEventListener("mouseup", onMouseUp);
+
         canvas_div.append(new_page);
         focus_canvas();
 
@@ -234,6 +250,7 @@
       case "5": {
         // previousIcon.style.backgroundColor = "grey";
 
+        alert("in previous");
         currentPage--;
         if (currentPage < 1) {
             currentPage = 1;
@@ -325,14 +342,16 @@
     }
 
     let all_canvas = document.querySelectorAll(".canvas-board");
-    let f_canvas = document.querySelector("#cv-" + currentPage);
 
     for (let i = 0; i < all_canvas.length; i++) {
         all_canvas[i].style.visibility = "hidden";
     }
 
+    let f_canvas = document.querySelector("#cv-" + currentPage);
     f_canvas.style.visibility = "visible";
+
     canvas = f_canvas;
+    //initialize_canvas();
   }
 </script>
 
@@ -536,13 +555,21 @@
     text-align: center;
   }
 
-  .canvas {
+  :global(.behind) {
+    z-index: -1;
+  }
+
+  :global(.front) {
+    z-index: 1;
+  }
+
+  :global(.canvas) {
     height: 100%;
     width: 96%;
     overflow: hidden;
   }
 
-  .canvas-board {
+  :global(.canvas-board) {
     width: 100%;
     height: 100%;
   }
