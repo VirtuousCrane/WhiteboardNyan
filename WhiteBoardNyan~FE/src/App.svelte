@@ -12,8 +12,10 @@
   let colorPaletteValue;
   let colorHue = "#000000";
 
-  let pencilIcon, eraserIcon, selectColorIcon;
+  let pencilIcon, eraserIcon, selectColorIcon, nextIcon, previousIcon;
   let toolSelected = "0";
+  let currentPage = 1;
+  let no_pages = 1;
 
   window.addEventListener("resize", () => {
     const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -27,6 +29,34 @@
     ctx.lineWidth = 10;
     ctx.putImageData(temp, 0, 0);
   });
+
+  function resize_page() {
+    const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const { x, width, y, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+    ctx.putImageData(temp, 0, 0);
+  }
+
+  function resize_page_from_canvas(c) {
+    let t_canvas = c;
+    let t_ctx = c.getContext("2d");
+    const temp = t_ctx.getImageData(0, 0, t_canvas.width, t_canvas.height);
+    const { x, width, y, height } = t_canvas.getBoundingClientRect();
+    t_canvas.width = width;
+    t_canvas.height = height;
+
+    t_ctx = canvas.getContext("2d");
+    t_ctx.lineJoin = "round";
+    t_ctx.lineCap = "round";
+    t_ctx.lineWidth = 10;
+    t_ctx.putImageData(temp, 0, 0);
+  }
 
   // WebSocket config
   let userID = generate_user_id();
@@ -73,6 +103,7 @@
   }
 
   function initialize() {
+    canvas = document.querySelector("#cv-1");
     const { x, width, y, height } = canvas.getBoundingClientRect();
     canvas.width = width;
     canvas.height = height;
@@ -84,6 +115,30 @@
 
     colorPaletteValue = document.querySelector("#colorpicker");
     colorPaletteValue.addEventListener("change", updateColor, true);
+  }
+
+  function initialize_canvas() {
+    console.log("Initializing Canvas...");
+    const { x, width, y, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+  }
+
+  function initialize_draw() {
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+
+    resize_page();
+
+    canvas.addEventListener("mousedown", onMouseDown);
+    canvas.addEventListener("mouseup", onMouseUp);
   }
 
   function paint(e) {
@@ -142,15 +197,10 @@
     }
 
     send({
-        event: "MESSAGE",
-        data: "Drawing",
-        userID: userID,
-    });
-
-    send({
       event: "DRAW",
       data: {
         action: toolSelected,
+        page_no: currentPage,
         clientX: clientX_msg,
         clientY: clientY_msg,
         offsetX: offsetX_msg,
@@ -163,9 +213,6 @@
 
   function updateColor(event) {
     colorHue = event.target.value;
-    console.log("update color selected");
-    console.log(event.target.value);
-    console.log(colorHue);
   }
 
   function onMouseMove(event) {
@@ -173,13 +220,17 @@
   }
 
   function onMouseDown(event) {
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mouseup", onMouseUp);
+    let current_canvas = document.querySelector("#" + event.target.id);
+
+    current_canvas.addEventListener("mousemove", onMouseMove);
+    current_canvas.addEventListener("mouseup", onMouseUp);
   }
 
-  function onMouseUp() {
-    canvas.removeEventListener("mousemove", onMouseMove);
-    canvas.removeEventListener("mouseup", onMouseUp);
+  function onMouseUp(event) {
+    let current_canvas = document.querySelector("#" + event.target.id);
+
+    current_canvas.removeEventListener("mousemove", onMouseMove);
+    current_canvas.removeEventListener("mouseup", onMouseUp);
     previousX = Infinity;
     previousY = Infinity;
   }
@@ -188,6 +239,8 @@
     pencilIcon.style.backgroundColor = "#ededed";
     eraserIcon.style.backgroundColor = "#ededed";
     selectColorIcon.style.backgroundColor = "#ededed";
+    nextIcon.style.backgroundColor = "#ededed";
+    previousIcon.style.backgroundColor = "#ededed";
 
     switch (toolSelected) {
       case "0": {
@@ -205,7 +258,55 @@
         selectColorIcon.style.backgroundColor = "grey";
         break;
       }
+      case "4": {
+        create_page(true);
+
+        break;
+      }
+      case "5": {
+        // previousIcon.style.backgroundColor = "grey";
+
+        currentPage--;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        focus_canvas();
+        break;
+      }
     }
+  }
+
+  function create_page(from_btn) {
+        if (from_btn) {
+          currentPage++;
+          if (currentPage <= no_pages) {
+            focus_canvas();
+            return;
+          }
+        }
+    
+        no_pages++;
+        let new_page = document.createElement("canvas");
+        let canvas_div = document.querySelector("#canvas-div");
+
+        new_page.setAttribute("id", "cv-" + no_pages);
+        new_page.classList.add("canvas-board");
+
+        canvas_div.append(new_page);
+
+        if (from_btn) {
+          send({
+            event: "NEW_PAGE",
+            data: {
+              page_no: currentPage,
+              userID: userID,
+            }
+          });
+        } else {
+          resize_page_from_canvas(new_page);
+        }
+
+        focus_canvas();
   }
 
   // Web Socket functions
@@ -218,15 +319,10 @@
   }
 
   function messageHandler(message) {
-    console.log("Received message");
-    console.log(message)
     let content = JSON.parse(message.data);
     let payload = content.payload;
     let data = payload.data;
     let senderID = data.userID;
-
-    console.log("MY ID = " + userID);
-    console.log(payload);
 
     if (senderID == userID) {
         return;
@@ -237,11 +333,13 @@
         console.log(data);
         break;
       case "DRAW":
-        console.log(data);
         drawFromMessage(data);
         break;
       case "ALERT":
         alert(data);
+        break;
+      case "NEW_PAGE":
+        create_page(false);
         break;
       default:
         break;
@@ -254,22 +352,34 @@
 
   function drawFromMessage(messageData) {
     if (messageData.action == "1") {
-      ctx.strokeStyle = messageData.colorHue;
-      ctx.beginPath();
+      let cmd_canvas = document.querySelector("#cv-" + messageData.page_no);
+      let t_ctx = cmd_canvas.getContext("2d");
+      t_ctx.lineJoin = "round";
+      t_ctx.lineCap = "round";
+      t_ctx.lineWidth = 10;
 
-      ctx.moveTo(messageData.clientX, messageData.clientY);
+      t_ctx.strokeStyle = messageData.colorHue;
+      t_ctx.beginPath();
 
-      ctx.lineTo(messageData.offsetX, messageData.offsetY);
-      ctx.stroke();
+      t_ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      t_ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      t_ctx.stroke();
     }
     else if(messageData.action == "2"){
-      ctx.strokeStyle = messageData.colorHue;
-      ctx.beginPath();
+      let cmd_canvas = document.querySelector("#cv-" + messageData.page_no);
+      let t_ctx = cmd_canvas.getContext("2d");
+      t_ctx.lineJoin = "round";
+      t_ctx.lineCap = "round";
+      t_ctx.lineWidth = 10;
 
-      ctx.moveTo(messageData.clientX, messageData.clientY);
+      t_ctx.strokeStyle = messageData.colorHue;
+      t_ctx.beginPath();
 
-      ctx.lineTo(messageData.offsetX, messageData.offsetY);
-      ctx.stroke();
+      t_ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      t_ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      t_ctx.stroke();
       colorHue = "#ffffff";
     }
   }
@@ -282,6 +392,26 @@
         selectedTool();
     }
   }
+
+  function focus_canvas() {
+    if (currentPage > no_pages) {
+      currentPage = no_pages;
+    }
+
+    let all_canvas = document.querySelectorAll(".canvas-board");
+
+    for (let i = 0; i < all_canvas.length; i++) {
+        all_canvas[i].style.visibility = "hidden";
+        all_canvas[i].style.zIndex = "-1";
+    }
+
+    let f_canvas = document.querySelector("#cv-" + currentPage);
+    f_canvas.style.visibility = "visible";
+    f_canvas.style.zIndex = "10";
+
+    canvas = f_canvas;
+    initialize_draw();
+  }
 </script>
 
 <main>
@@ -293,7 +423,7 @@
         </div>
         <div class="app-title">Cooperative Whiteboard</div>
       </div>
-      <div class="whiteboard-name">Whiteboard Title</div>
+      <div class="whiteboard-name">{roomCode}</div>
     </div>
 
     <div class="center-page">
@@ -326,57 +456,34 @@
         >
           <input type="color" id="colorpicker" />
         </div>
+        <div class="tool-icon"
+          bind:this={nextIcon}
+          on:click={()=> (toolSelected= "4")}
+          on:click={selectedTool}
+        >
+          <Icon icon="fluent:next-20-filled" width="44" height="44"></Icon>
+        </div>
+        <div class="tool-icon">
+          <form on:submit|preventDefault={focus_canvas}>
+            <input type="number" id="currentPage" bind:value={currentPage}>
+          </form>
+        </div>
+        <div
+          class="tool-icon"
+          bind:this={previousIcon}
+          on:click={() => (toolSelected = "5")}
+          on:click={selectedTool}
+          >
+            <Icon icon="fluent:previous-48-filled" width="44" height="44"></Icon>
+        </div>
       </div>
-      <div class="canvas">
+      <div id="canvas-div" class="canvas">
         <canvas
-          id="my-canvas"
-          bind:this={canvas}
+          id="cv-1"
+          class="canvas-board"
           on:mousedown={onMouseDown}
           on:mouseup={onMouseUp}
         />
-        <canvas
-          id="canvas"
-          style="background-color:#EEE;"
-          width="500px"
-          height="200px"
-        />
-        <script type="text/javascript">
-          var canvas = document.getElementById("canvas");
-          var ctx = canvas.getContext("2d");
-          canvas.addEventListener(
-            "mousedown",
-            function (e) {
-              this.down = true;
-              this.X = e.pageX;
-              this.Y = e.pageY;
-            },
-            0
-          );
-          canvas.addEventListener(
-            "mouseup",
-            function () {
-              this.down = false;
-            },
-            0
-          );
-          canvas.addEventListener(
-            "mousemove",
-            function (e) {
-              if (this.down) {
-                with (ctx) {
-                  beginPath();
-                  moveTo(this.X, this.Y);
-                  lineTo(e.pageX, e.pageY);
-                  ctx.lineWidth = 1;
-                  stroke();
-                }
-                this.X = e.pageX;
-                this.Y = e.pageY;
-              }
-            },
-            0
-          );
-        </script>
       </div>
     </div>
   </div>
@@ -467,12 +574,31 @@
     background-color: lightgrey;
   }
 
-  .canvas {
+  #currentPage{
+    background-color: #ededed;
+    height: 80%;
+    width: 80%;
+    color: black;
+    border: solid 1px black;
+    text-align: center;
+  }
+
+  :global(.behind) {
+    z-index: -1;
+  }
+
+  :global(.front) {
+    z-index: 1;
+  }
+
+  :global(.canvas) {
     height: 100%;
     width: 96%;
     overflow: hidden;
   }
-  #my-canvas {
+
+  :global(.canvas-board) {
+    position: absolute;
     width: 100%;
     height: 100%;
   }
