@@ -30,6 +30,19 @@
     ctx.putImageData(temp, 0, 0);
   });
 
+  function resize_page() {
+    const temp = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const { x, width, y, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+    ctx.putImageData(temp, 0, 0);
+  }
+
   // WebSocket config
   let userID = generate_user_id();
   
@@ -107,6 +120,8 @@
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.lineWidth = 10;
+
+    resize_page();
 
     canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mouseup", onMouseUp);
