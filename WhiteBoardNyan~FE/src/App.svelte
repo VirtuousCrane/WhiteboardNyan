@@ -438,7 +438,7 @@
         </div>
         <div class="app-title">Cooperative Whiteboard</div>
       </div>
-      <div class="whiteboard-name">Whiteboard Title</div>
+      <div class="whiteboard-name">{roomCode}</div>
       <div class="user">
         <div class="user-icon">
           <!-- <img/> -->
