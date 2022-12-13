@@ -294,13 +294,6 @@
         <div class="app-title">Cooperative Whiteboard</div>
       </div>
       <div class="whiteboard-name">Whiteboard Title</div>
-      <!-- <div class="user">
-        <div class="user-icon">
-          <img/>
-        </div>
-        <div class="user-name">UserTEMP</div>
-        <div class="sign-out">Sign Out</div>
-      </div> -->
     </div>
 
     <div class="center-page">
@@ -412,7 +405,6 @@
     width: 100%;
     display: flex;
     align-items: center;
-    /* justify-content: space-evenly; */
   }
 
   .icon-name {
@@ -421,7 +413,6 @@
     display: flex;
   }
   .icon {
-    /* height: 40px; */
     width: 40px;
     border-radius: 4px;
     margin: 4px;
@@ -446,29 +437,6 @@
     height: 100%;
     width: 33.333%;
   }
-
-  /* .user {
-    height: 100%;
-    width: 33.333%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
-  }
-  .user-icon {
-    height: 40px;
-    width: 40px;
-    border-radius: 40px;
-    background-color: black;
-  }
-  .user-name {
-    padding-left: 5%;
-    padding-right: 5%;
-    color: black;
-  }
-  .sign-out {
-    color: black;
-    padding-right: 10px;
-  } */
 
   .center-page {
     height: 94%;
