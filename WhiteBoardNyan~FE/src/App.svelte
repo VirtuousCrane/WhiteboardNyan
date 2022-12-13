@@ -400,6 +400,7 @@
   }
 
   .main-page {
+    position: absolute;
     height: 100vh;
     width: 100vw;
     background-color: white;
@@ -507,4 +508,5 @@
     width: 100%;
     height: 100%;
   }
+  
 </style>
