@@ -1,14 +1,14 @@
 {
   "src/main.js": {
-    "file": "theme/main.b6ba642d.js",
+    "file": "theme/main.c2fb59f4.js",
     "src": "src/main.js",
     "isEntry": true,
     "css": [
-      "theme/main.b5bc6780.css"
+      "theme/main.33892510.css"
     ]
   },
   "src/main.css": {
-    "file": "theme/main.b5bc6780.css",
+    "file": "theme/main.33892510.css",
     "src": "src/main.css"
   }
 }

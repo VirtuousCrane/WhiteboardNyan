@@ -102,6 +102,16 @@
     ctx.lineWidth = 10;
   }
 
+  function initialize_draw() {
+    ctx = canvas.getContext("2d");
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 10;
+
+    canvas.addEventListener("mousedown", onMouseDown);
+    canvas.addEventListener("mouseup", onMouseUp);
+  }
+
   function paint(e) {
     let clientX_msg;
     let clientY_msg;
@@ -189,13 +199,21 @@
   }
 
   function onMouseDown(event) {
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mouseup", onMouseUp);
+    let current_canvas = document.querySelector("#" + event.target.id);
+    console.log("This is the current canvas: ");
+    console.log(current_canvas);
+
+    current_canvas.addEventListener("mousemove", onMouseMove);
+    current_canvas.addEventListener("mouseup", onMouseUp);
   }
 
-  function onMouseUp() {
-    canvas.removeEventListener("mousemove", onMouseMove);
-    canvas.removeEventListener("mouseup", onMouseUp);
+  function onMouseUp(event) {
+    let current_canvas = document.querySelector("#" + event.target.id);
+    console.log("This is the current canvas: ");
+    console.log(current_canvas);
+
+    current_canvas.removeEventListener("mousemove", onMouseMove);
+    current_canvas.removeEventListener("mouseup", onMouseUp);
     previousX = Infinity;
     previousY = Infinity;
   }
@@ -239,9 +257,6 @@
         new_page.setAttribute("id", "cv-" + currentPage);
         new_page.classList.add("canvas-board");
 
-        new_page.addEventListener("mousedown", onMouseDown);
-        new_page.addEventListener("mouseup", onMouseUp);
-
         canvas_div.append(new_page);
         focus_canvas();
 
@@ -250,7 +265,6 @@
       case "5": {
         // previousIcon.style.backgroundColor = "grey";
 
-        alert("in previous");
         currentPage--;
         if (currentPage < 1) {
             currentPage = 1;
@@ -345,13 +359,15 @@
 
     for (let i = 0; i < all_canvas.length; i++) {
         all_canvas[i].style.visibility = "hidden";
+        all_canvas[i].style.zIndex = "-1";
     }
 
     let f_canvas = document.querySelector("#cv-" + currentPage);
     f_canvas.style.visibility = "visible";
+    f_canvas.style.zIndex = "10";
 
     canvas = f_canvas;
-    //initialize_canvas();
+    initialize_draw();
   }
 </script>
 
@@ -570,6 +586,7 @@
   }
 
   :global(.canvas-board) {
+    position: absolute;
     width: 100%;
     height: 100%;
   }
