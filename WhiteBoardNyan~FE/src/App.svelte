@@ -43,6 +43,21 @@
     ctx.putImageData(temp, 0, 0);
   }
 
+  function resize_page_from_canvas(c) {
+    let t_canvas = c;
+    let t_ctx = c.getContext("2d");
+    const temp = t_ctx.getImageData(0, 0, t_canvas.width, t_canvas.height);
+    const { x, width, y, height } = t_canvas.getBoundingClientRect();
+    t_canvas.width = width;
+    t_canvas.height = height;
+
+    t_ctx = canvas.getContext("2d");
+    t_ctx.lineJoin = "round";
+    t_ctx.lineCap = "round";
+    t_ctx.lineWidth = 10;
+    t_ctx.putImageData(temp, 0, 0);
+  }
+
   // WebSocket config
   let userID = generate_user_id();
   
@@ -183,15 +198,10 @@
     }
 
     send({
-        event: "MESSAGE",
-        data: "Drawing",
-        userID: userID,
-    });
-
-    send({
       event: "DRAW",
       data: {
         action: toolSelected,
+        page_no: currentPage,
         clientX: clientX_msg,
         clientY: clientY_msg,
         offsetX: offsetX_msg,
@@ -257,23 +267,14 @@
         break;
       }
       case "4": {
-        // nextIcon.style.backgroundColor = "grey";
-
-        currentPage++;
-        if (currentPage <= no_pages) {
-          focus_canvas();
-          return;
-        }
-  
-        no_pages++;
-        let new_page = document.createElement("canvas");
-        let canvas_div = document.querySelector("#canvas-div");
-
-        new_page.setAttribute("id", "cv-" + currentPage);
-        new_page.classList.add("canvas-board");
-
-        canvas_div.append(new_page);
-        focus_canvas();
+        create_page(true);
+        send({
+          event: "NEW_PAGE",
+          data: {
+            page_no: currentPage,
+            userID: userID,
+          }
+        });
 
         break;
       }
@@ -288,6 +289,32 @@
         break;
       }
     }
+  }
+
+  function create_page(from_btn) {
+        if (from_btn) {
+          currentPage++;
+          if (currentPage <= no_pages) {
+            focus_canvas();
+            return;
+          }
+        }
+    
+        no_pages++;
+        let new_page = document.createElement("canvas");
+        let canvas_div = document.querySelector("#canvas-div");
+
+        new_page.setAttribute("id", "cv-" + no_pages);
+        new_page.classList.add("canvas-board");
+
+        canvas_div.append(new_page);
+
+        if (from_btn) {
+          focus_canvas();
+        } else {
+          resize_page_from_canvas(new_page);
+          focus_canvas();
+        }
   }
 
   // Web Socket functions
@@ -325,6 +352,10 @@
       case "ALERT":
         alert(data);
         break;
+      case "NEW_PAGE":
+        console.log(data);
+        create_page(false);
+        break;
       default:
         break;
     }
@@ -336,22 +367,34 @@
 
   function drawFromMessage(messageData) {
     if (messageData.action == "1") {
-      ctx.strokeStyle = messageData.colorHue;
-      ctx.beginPath();
+      let cmd_canvas = document.querySelector("#cv-" + messageData.page_no);
+      let t_ctx = cmd_canvas.getContext("2d");
+      t_ctx.lineJoin = "round";
+      t_ctx.lineCap = "round";
+      t_ctx.lineWidth = 10;
 
-      ctx.moveTo(messageData.clientX, messageData.clientY);
+      t_ctx.strokeStyle = messageData.colorHue;
+      t_ctx.beginPath();
 
-      ctx.lineTo(messageData.offsetX, messageData.offsetY);
-      ctx.stroke();
+      t_ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      t_ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      t_ctx.stroke();
     }
     else if(messageData.action == "2"){
-      ctx.strokeStyle = messageData.colorHue;
-      ctx.beginPath();
+      let cmd_canvas = document.querySelector("#cv-" + messageData.page_no);
+      let t_ctx = cmd_canvas.getContext("2d");
+      t_ctx.lineJoin = "round";
+      t_ctx.lineCap = "round";
+      t_ctx.lineWidth = 10;
 
-      ctx.moveTo(messageData.clientX, messageData.clientY);
+      t_ctx.strokeStyle = messageData.colorHue;
+      t_ctx.beginPath();
 
-      ctx.lineTo(messageData.offsetX, messageData.offsetY);
-      ctx.stroke();
+      t_ctx.moveTo(messageData.clientX, messageData.clientY);
+
+      t_ctx.lineTo(messageData.offsetX, messageData.offsetY);
+      t_ctx.stroke();
       colorHue = "#ffffff";
     }
   }
