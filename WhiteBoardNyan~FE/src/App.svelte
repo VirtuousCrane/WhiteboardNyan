@@ -268,13 +268,6 @@
       }
       case "4": {
         create_page(true);
-        send({
-          event: "NEW_PAGE",
-          data: {
-            page_no: currentPage,
-            userID: userID,
-          }
-        });
 
         break;
       }
@@ -310,11 +303,18 @@
         canvas_div.append(new_page);
 
         if (from_btn) {
-          focus_canvas();
+          send({
+            event: "NEW_PAGE",
+            data: {
+              page_no: currentPage,
+              userID: userID,
+            }
+          });
         } else {
           resize_page_from_canvas(new_page);
-          focus_canvas();
         }
+
+        focus_canvas();
   }
 
   // Web Socket functions
@@ -486,7 +486,7 @@
           <Icon icon="fluent:next-20-filled" width="44" height="44"></Icon>
         </div>
         <div class="tool-icon">
-          <form id="page-no-form" action="">
+          <form on:submit|preventDefault={focus_canvas}>
             <input type="number" id="currentPage" bind:value={currentPage}>
           </form>
         </div>
