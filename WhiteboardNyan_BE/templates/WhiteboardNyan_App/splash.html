@@ -1,0 +1,147 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'frontend/vite.svg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Svelte</title>
+  </head>
+  <body>
+    <div class="main-page">
+  	  <div class="header">
+	    <div class="icon-name">
+	      <div class="icon">
+	        <img src="{% static 'frontend/image/WhiteBoardIcon-2.png' %}" alt="whiteboardlogo" />
+	      </div>
+	      <div class="app-title">Cooperative Whiteboard</div>
+	    </div>
+	    <div class="whiteboard-name">Whiteboard Title</div>
+	  </div>
+	  <div class="center-page">
+	    <div class="title">
+	      <p>Joining</p>
+	      <p>WhiteBoard</p>
+	    </div>
+	    <div class="input-code-container">
+	      <form id='wb' class="form-container" action="">
+	        <input id="input-code" class="input-code" type="text" placeholder="Enter Whiteboard Code">
+	        <input class="submit-button" type="submit" value="Join WhiteBoard">
+	      </form>
+	    </div>
+	  </div>
+    </div>
+  </body>
+  <script>
+  	let f = document.getElementById("wb");
+  	f.addEventListener("submit", function(f) {
+  		f.preventDefault();
+  		let code = document.getElementById("input-code").value;
+  		console.log(window.location.host + "/whiteboard/" + code);
+  		window.location.href = "http://" + window.location.host + "/whiteboard/" + code;
+  	});
+  </script>
+  <style>
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  body{
+    margin: 0px;
+  }
+
+  .main-page {
+    height: 100vh;
+    width: 100vw;
+    background-color: white;
+  }
+
+  .header {
+    background-color: #d9d9d9;
+    height: 6%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .icon-name {
+    height: 100%;
+    width: 33.333%;
+    display: flex;
+  }
+  .icon {
+    width: 40px;
+    border-radius: 4px;
+    margin: 4px;
+    margin-left: 14px;
+  }
+
+  .app-title {
+    color: black;
+    display: flex;
+    align-items: center;
+    padding-left: 2%;
+    font-size: large;
+  }
+  .whiteboard-name {
+    position: absolute;
+    color: black;
+    font-size: x-large;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .center-page{
+    height: 94%;
+    width: 100%;
+  }
+  .title{
+    height: 30%;
+    width: 100%;
+    color: black;
+    text-align: center;
+    padding-top: 10%;
+  }
+  p{
+    margin: 0;
+    font-size: 84px;
+    font-weight: bold;
+  }
+  .input-code-container{
+    height: 30%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .form-container{
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .input-code{
+    background-color: #D9D9D9;
+    height: 16%;
+    width: 100%;
+    border-radius: 8px;
+    color: black;
+    font-size: 20px;
+  }
+  .submit-button{
+    background-color: #FFC451;
+    height: 18%;
+    width: 102%;
+    border-radius: 8px;
+    color: black;
+    font-size: 20px;
+  }
+</style>
+</html>
